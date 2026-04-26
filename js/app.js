@@ -13,11 +13,17 @@ let detailsDate = new Date();
 let activeHabitForDetails = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize mobile drag and drop polyfill
-  MobileDragDrop.polyfill({
-    dragImageTranslateOverride: window.mobileDragDrop.scrollBehaviourDragImageTranslateOverride
-  });
-  window.addEventListener('touchmove', function() {}, {passive: false});
+  // Initialize mobile drag and drop polyfill safely
+  try {
+    if (typeof MobileDragDrop !== 'undefined') {
+      MobileDragDrop.polyfill({
+        dragImageTranslateOverride: (typeof window.mobileDragDrop !== 'undefined') ? window.mobileDragDrop.scrollBehaviourDragImageTranslateOverride : undefined
+      });
+      window.addEventListener('touchmove', function() {}, {passive: false});
+    }
+  } catch (e) {
+    console.error("Failed to initialize drag and drop polyfill:", e);
+  }
 
   state = loadData();
   recalculateStats(state);
