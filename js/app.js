@@ -13,6 +13,12 @@ let detailsDate = new Date();
 let activeHabitForDetails = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize mobile drag and drop polyfill
+  MobileDragDrop.polyfill({
+    dragImageTranslateOverride: window.mobileDragDrop.scrollBehaviourDragImageTranslateOverride
+  });
+  window.addEventListener('touchmove', function() {}, {passive: false});
+
   state = loadData();
   recalculateStats(state);
   saveData(state);
