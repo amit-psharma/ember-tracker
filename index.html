@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ember - Habit Tracking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="theme-light">
+  <div id="app" class="app-layout">
+    
+    <!-- MAIN NAVIGATION -->
+    <nav id="main-nav" class="main-nav">
+      <button class="nav-item active" data-target="view-dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>Habits</span>
+      </button>
+      <button class="nav-item" data-target="view-timer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span>Focus</span>
+      </button>
+      <button class="nav-item" data-target="view-insights">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <span>Insights</span>
+      </button>
+      <button class="nav-item" data-target="view-about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>Learn</span>
+      </button>
+    </nav>
+
+    <div class="views-wrapper">
+      
+      <!-- VIEW: DASHBOARD (My Habits) -->
+      <div id="view-dashboard" class="view active-view">
+        <header class="app-header">
+          <h1 class="header-title">My habits</h1>
+          <div class="header-actions">
+            <button id="nav-settings-btn" class="icon-btn">
+              <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="quotes-wrapper" style="text-align: center; margin-bottom: 8px;">
+          <div id="quotes-carousel" class="quotes-carousel" style="font-size: 13px; font-style: italic; opacity: 0.7; min-height: 20px;"></div>
+        </div>
+
+        <div class="date-strip-container">
+          <div id="dashboard-date-strip" class="date-strip"></div>
+        </div>
+
+        <main class="dashboard-main">
+          <div id="habits-list" class="habits-list"></div>
+          <button id="add-habit-btn" class="fab-btn">+</button>
+        </main>
+      </div>
+
+      <!-- VIEW: POMODORO TIMER -->
+      <div id="view-timer" class="view">
+        <header class="app-header">
+          <h1 class="header-title">Deep Work</h1>
+        </header>
+        <main class="timer-main">
+          <div class="pomodoro-container">
+            <div id="pomodoro-mode" class="timer-mode">Focus Time</div>
+            <div id="pomodoro-display" class="timer-display">25:00</div>
+            <div class="timer-controls">
+              <button id="pomodoro-toggle" class="primary-btn">Start</button>
+              <button id="pomodoro-reset" class="secondary-btn">Reset</button>
+            </div>
+            <div class="timer-sessions">
+              <span>Sessions Completed: </span><strong id="pomodoro-sessions">0</strong>
+            </div>
+          </div>
+          
+          <div class="pomodoro-context">
+            <h3>Why 25 minutes?</h3>
+            <p>The Pomodoro Technique uses 25-minute intervals of highly focused, uninterrupted work followed by a 5-minute break. This duration is scientifically proven to be long enough to achieve deep work, but short enough to prevent cognitive fatigue.</p>
+          </div>
+        </main>
+      </div>
+
+      <!-- VIEW: INSIGHTS (Global) -->
+      <div id="view-insights" class="view">
+        <header class="app-header">
+          <h1 class="header-title">Insights</h1>
+        </header>
+        <main class="insights-main">
+          <div class="insights-card">
+            <div class="card-header">
+              <h2>Heatmap</h2>
+            </div>
+            <div class="calendar-header">
+              <button id="prev-month-btn" class="cal-nav">&lt;</button>
+              <h3 id="calendar-month-year">December</h3>
+              <button id="next-month-btn" class="cal-nav">&gt;</button>
+            </div>
+            <div class="calendar-weekdays">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div id="calendar-grid" class="calendar-grid"></div>
+          </div>
+          <div class="insights-card">
+            <div class="card-header">
+              <h2>Top habits</h2>
+            </div>
+            <div id="top-habits-list" class="top-habits-list"></div>
+          </div>
+        </main>
+      </div>
+
+      <!-- VIEW: HABIT DETAILS -->
+      <div id="view-habit-details" class="view">
+        <header id="details-header" class="app-header details-header">
+          <button id="back-from-details-btn" class="icon-btn text-white">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+        </header>
+        <div id="details-hero" class="details-hero">
+          <h1 id="details-title">Exercise</h1>
+          <div class="details-stats">
+            <div class="stat-box">
+              <div id="stat-total" class="stat-num">0</div>
+              <div class="stat-label">total</div>
+            </div>
+            <div class="stat-box">
+              <div id="stat-week" class="stat-num">0</div>
+              <div class="stat-label">this week</div>
+            </div>
+            <div class="stat-box">
+              <div id="stat-rate" class="stat-num">0%</div>
+              <div class="stat-label">rate</div>
+            </div>
+          </div>
+        </div>
+        <main class="details-main">
+          <div class="insights-card dark-card">
+            <div class="calendar-header text-white">
+              <button id="details-prev-month" class="cal-nav text-white">&lt;</button>
+              <h3 id="details-calendar-month-year">December</h3>
+              <button id="details-next-month" class="cal-nav text-white">&gt;</button>
+            </div>
+            <div class="calendar-weekdays text-white">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div id="details-calendar-grid" class="calendar-grid dark-grid"></div>
+          </div>
+        </main>
+      </div>
+
+      <!-- VIEW: ABOUT HABITS -->
+      <div id="view-about" class="view">
+        <header class="app-header">
+          <h1 class="header-title">Habit Science</h1>
+        </header>
+        <main class="about-main">
+          <div class="about-hero">
+            <h1>1% Better Every Day</h1>
+            <p>Based on the principles of Atomic Habits</p>
+          </div>
+          
+          <div class="infographic-section">
+            <div class="info-card">
+              <div class="info-icon">1</div>
+              <h3>Make it Obvious</h3>
+              <p>Design your environment. The cues that trigger your habits should be front and center.</p>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">2</div>
+              <h3>Make it Attractive</h3>
+              <p>Pair an action you want to do with an action you need to do (Temptation Bundling).</p>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">3</div>
+              <h3>Make it Easy</h3>
+              <p>Reduce friction. The 2-Minute Rule states any new habit should take less than 2 minutes to start.</p>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">4</div>
+              <h3>Make it Satisfying</h3>
+              <p>What is immediately rewarded is repeated. Never miss twice. Form the 21-day chain.</p>
+            </div>
+          </div>
+        </main>
+      </div>
+
+    </div> <!-- END views-wrapper -->
+
+    <!-- Add Habit Sheet -->
+    <div id="add-habit-sheet" class="bottom-sheet" aria-hidden="true">
+      <div class="sheet-content">
+        <div class="sheet-handle"></div>
+        <input type="text" id="new-habit-input" placeholder="Name of habit" autocomplete="off">
+        <button id="save-habit-btn" class="primary-btn">Add</button>
+      </div>
+    </div>
+
+  </div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
