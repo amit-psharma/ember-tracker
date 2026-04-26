@@ -39,15 +39,12 @@ export function renderHabitsDashboard(habits, logs, onHabitToggle, onHabitTap, o
   const today = new Date();
   today.setHours(0,0,0,0);
   
-  let draggedCardIndex = null;
-  
   habits.forEach((habit, index) => {
     const colorPair = habitColorPairs[habit.colorIdx] || habitColorPairs[0];
     
     const card = document.createElement('div');
     card.className = 'habit-card';
     card.style.backgroundColor = colorPair.bg;
-    card.draggable = true;
     card.dataset.index = index;
     
     // Header text
@@ -130,44 +127,6 @@ export function renderHabitsDashboard(habits, logs, onHabitToggle, onHabitTap, o
       }
     });
 
-    // --- Drag and Drop Logic ---
-    card.addEventListener('dragstart', (e) => {
-      draggedCardIndex = parseInt(card.dataset.index);
-      e.dataTransfer.effectAllowed = 'move';
-      // Slight delay so the card doesn't instantly disappear while dragging
-      setTimeout(() => card.classList.add('dragging'), 0);
-    });
-
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      document.querySelectorAll('.habit-card').forEach(c => c.classList.remove('drag-over'));
-      draggedCardIndex = null;
-    });
-
-    card.addEventListener('dragover', (e) => {
-      e.preventDefault(); // Necessary to allow dropping
-      e.dataTransfer.dropEffect = 'move';
-      if (draggedCardIndex !== null && draggedCardIndex !== parseInt(card.dataset.index)) {
-        card.classList.add('drag-over');
-      }
-    });
-
-    card.addEventListener('dragleave', () => {
-      card.classList.remove('drag-over');
-    });
-
-    card.addEventListener('drop', (e) => {
-      e.preventDefault();
-      card.classList.remove('drag-over');
-      
-      const targetIndex = parseInt(card.dataset.index);
-      if (draggedCardIndex !== null && draggedCardIndex !== targetIndex) {
-        if (onReorder) {
-          onReorder(draggedCardIndex, targetIndex);
-        }
-      }
-    });
-    
     container.appendChild(card);
   });
 }

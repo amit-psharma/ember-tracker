@@ -13,18 +13,6 @@ let detailsDate = new Date();
 let activeHabitForDetails = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize mobile drag and drop polyfill safely
-  try {
-    if (typeof MobileDragDrop !== 'undefined') {
-      MobileDragDrop.polyfill({
-        dragImageTranslateOverride: (typeof window.mobileDragDrop !== 'undefined') ? window.mobileDragDrop.scrollBehaviourDragImageTranslateOverride : undefined
-      });
-      window.addEventListener('touchmove', function() {}, {passive: false});
-    }
-  } catch (e) {
-    console.error("Failed to initialize drag and drop polyfill:", e);
-  }
-
   state = loadData();
   recalculateStats(state);
   saveData(state);
@@ -34,6 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initUI() {
+  // Initialize Sortable for drag and drop
+  if (typeof Sortable !== 'undefined') {
+    Sortable.create(document.getElementById('habits-list'), {
+      animation: 150,
+      delay: 200, // delay to allow touch scrolling on mobile
+      delayOnTouchOnly: true,
+      onEnd: function (evt) {
+        if (evt.oldIndex !== undefined && evt.newIndex !== undefined && evt.oldIndex !== evt.newIndex) {
+          handleHabitReorder(evt.oldIndex, evt.newIndex);
+        }
+      }
+    });
+  }
+
   // Global click listener for audio/haptics on interactive elements
   document.body.addEventListener('click', (e) => {
     initAudio(); // Resumes AudioContext on first interaction
