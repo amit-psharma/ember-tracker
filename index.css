@@ -99,7 +99,7 @@ h1, h2, h3, .habit-name {
 
 /* HEADER */
 .app-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;}
-.header-title { font-size: 24px; font-weight: 600; flex-grow: 1; text-align: center; }
+.header-title { font-family: 'Molenilo', 'Zilla Slab', serif; font-size: 24px; font-weight: 600; flex-grow: 1; text-align: center; }
 .header-actions { display: flex; gap: 8px; }
 .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--text-color); display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%;}
 .icon-btn svg { width: 24px; height: 24px; }
@@ -117,8 +117,10 @@ h1, h2, h3, .habit-name {
 .habits-list { display: flex; flex-direction: column; gap: 12px; }
 
 /* CARDS */
-.habit-card { border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
-.habit-card:active { transform: scale(0.98); }
+.habit-card { border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; cursor: grab; transition: transform 0.2s, opacity 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.05); user-select: none;}
+.habit-card:active { transform: scale(0.98); cursor: grabbing; }
+.habit-card.dragging { opacity: 0.4; box-shadow: 0 12px 24px rgba(0,0,0,0.2); transform: scale(1.02); }
+.habit-card.drag-over { border-top: 4px solid var(--nav-active); border-radius: 4px 4px 16px 16px; }
 .card-header { display: flex; justify-content: space-between; align-items: flex-start;}
 .habit-name { font-size: 22px; font-weight: 600; line-height: 1.2; margin-bottom: 2px;}
 .habit-stats { font-size: 11px; opacity: 0.8; font-weight: 600;}

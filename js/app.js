@@ -49,8 +49,34 @@ function initUI() {
   // Modals & Sheets
   setupBottomSheets();
   
-  // Initialize Quotes
-  initQuotesCarousel('quotes-carousel');
+  // Settings Menu
+  document.getElementById('nav-settings-btn').addEventListener('click', () => {
+    document.getElementById('settings-sheet').setAttribute('aria-hidden', 'false');
+  });
+
+  // Edit Habit Menu
+  document.getElementById('nav-edit-habit-btn').addEventListener('click', () => {
+    if (!activeHabitForDetails) return;
+    document.getElementById('edit-habit-input').value = activeHabitForDetails.name;
+    document.getElementById('edit-habit-sheet').setAttribute('aria-hidden', 'false');
+  });
+
+  // Export Data (JSON)
+  document.getElementById('export-json-btn').addEventListener('click', () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+    const a = document.createElement('a');
+    a.setAttribute("href", dataStr);
+    a.setAttribute("download", "ember_backup.json");
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    document.getElementById('settings-sheet').setAttribute('aria-hidden', 'true');
+  });
+
+  // Export Superhero Milestone
+  document.getElementById('export-superhero-btn').addEventListener('click', () => {
+    exportSuperheroImage();
+  });
   
   // Initialize Timer
   new PomodoroTimer(
@@ -92,7 +118,7 @@ function switchView(viewId) {
 
 function updateDashboard() {
   renderDashboardDateStrip();
-  renderHabitsDashboard(state.habits, state.logs, handleHabitToggle, openHabitDetails);
+  renderHabitsDashboard(state.habits, state.logs, handleHabitToggle, openHabitDetails, handleHabitReorder);
 }
 
 function updateInsights() {
@@ -178,10 +204,87 @@ function handleHabitToggle(habitId, dateStr) {
   updateDashboard();
 }
 
+function handleHabitReorder(oldIndex, newIndex) {
+  triggerHaptic(40);
+  const movedHabit = state.habits.splice(oldIndex, 1)[0];
+  state.habits.splice(newIndex, 0, movedHabit);
+  saveData(state);
+  updateDashboard();
+}
+
 function openHabitDetails(habit) {
   activeHabitForDetails = habit;
   detailsDate = new Date(); // reset to current month
   switchView('view-habit-details');
+}
+
+function handleDeleteHabit(habitId) {
+  if (!confirm("Are you sure you want to permanently delete this habit and all its history?")) return;
+  
+  // Remove habit
+  state.habits = state.habits.filter(h => h.id !== habitId);
+  
+  // Remove from logs
+  for (const date in state.logs) {
+    if (state.logs[date].habits) {
+      state.logs[date].habits = state.logs[date].habits.filter(id => id !== habitId);
+    }
+  }
+  
+  saveData(state);
+  document.getElementById('edit-habit-sheet').setAttribute('aria-hidden', 'true');
+  switchView('view-dashboard');
+}
+
+function exportSuperheroImage() {
+  const canvas = document.getElementById('superhero-canvas');
+  const img = document.getElementById('superhero-img');
+  
+  if (!img.complete || img.naturalHeight === 0) {
+    alert("Image is still loading, please try again in a moment.");
+    return;
+  }
+
+  // Find max streak across all habits
+  let maxStreak = 0;
+  let topHabitName = "a Habit";
+  if (state.habits.length > 0) {
+    const topHabit = [...state.habits].sort((a, b) => b.streak - a.streak)[0];
+    maxStreak = topHabit.streak;
+    topHabitName = topHabit.name;
+  }
+
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  
+  // Draw base image
+  ctx.drawImage(img, 0, 0);
+  
+  // Draw Text Overlay
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.fillRect(0, canvas.height - 180, canvas.width, 180);
+  
+  ctx.font = 'bold 80px "Zilla Slab", serif';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'center';
+  
+  if (maxStreak >= 21) {
+    ctx.fillText(`21-Day Habit Master!`, canvas.width / 2, canvas.height - 90);
+  } else {
+    ctx.fillText(`${maxStreak} Day Streak!`, canvas.width / 2, canvas.height - 90);
+  }
+  
+  ctx.font = '40px "Plus Jakarta Sans", sans-serif';
+  ctx.fillText(`Unstoppable on '${topHabitName}'`, canvas.width / 2, canvas.height - 30);
+  
+  // Download
+  const link = document.createElement('a');
+  link.download = `ember_superhero_streak.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  
+  document.getElementById('settings-sheet').setAttribute('aria-hidden', 'true');
 }
 
 function setupBottomSheets() {
@@ -212,6 +315,25 @@ function setupBottomSheets() {
     
     addSheet.setAttribute('aria-hidden', 'true');
     addInput.value = '';
+  });
+
+  // Edit Habit Bottom Sheet
+  document.getElementById('save-edit-habit-btn').addEventListener('click', () => {
+    const input = document.getElementById('edit-habit-input');
+    if (!input.value.trim() || !activeHabitForDetails) return;
+    
+    activeHabitForDetails.name = input.value.trim();
+    saveData(state);
+    
+    // Update active view details header
+    document.getElementById('details-title').textContent = activeHabitForDetails.name;
+    
+    document.getElementById('edit-habit-sheet').setAttribute('aria-hidden', 'true');
+  });
+
+  document.getElementById('delete-habit-btn').addEventListener('click', () => {
+    if (!activeHabitForDetails) return;
+    handleDeleteHabit(activeHabitForDetails.id);
   });
 
   document.querySelectorAll('.sheet-handle').forEach(handle => {
